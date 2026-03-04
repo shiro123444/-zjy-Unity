@@ -102,17 +102,6 @@ public class InfoPanel : MonoBehaviour
         if (panelRoot != null && !panelRoot.activeSelf)
         {
             panelRoot.SetActive(true);
-            
-            // 重新绑定按钮（以防万一）
-            if (closeButton != null)
-            {
-                closeButton.onClick.RemoveAllListeners();
-                closeButton.onClick.AddListener(() => {
-                    Debug.Log("关闭按钮被点击（从 ShowInfo）！");
-                    HideInfo();
-                });
-            }
-            
             StartCoroutine(FadeIn());
         }
     }

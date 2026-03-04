@@ -89,7 +89,7 @@ public class InfoPanelSetup : EditorWindow
         detailRect.sizeDelta = new Vector2(-30, -80);
 
         TextMeshProUGUI detailText = detail.AddComponent<TextMeshProUGUI>();
-        detailText.text = "Click an object to view details";
+        detailText.text = "点击物体查看详细信息";
         detailText.fontSize = 16;
         detailText.alignment = TextAlignmentOptions.TopLeft;
         detailText.color = Color.white;

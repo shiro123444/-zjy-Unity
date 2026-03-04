@@ -10,11 +10,11 @@ public class ClickableObject : MonoBehaviour
 {
     [Header("物体信息")]
     [Tooltip("物体名称")]
-    public string objectName = "Fire Extinguisher A1";
+    public string objectName = "消防器A1";
     
     [Tooltip("详细信息（支持多行）")]
     [TextArea(5, 10)]
-    public string detailInfo = "Fire Extinguisher A1\n\nType: Dry Powder\nLocation: 1F Corridor\nStatus: Normal\nLast Check: 2024-03-01";
+    public string detailInfo = "消防器A1\n\n类型：干粉灭火器\n位置：一楼走廊\n状态：正常\n最后检查：2024-03-01";
 
     [Header("选中效果")]
     [Tooltip("波纹材质（可选）")]
@@ -97,6 +97,13 @@ public class ClickableObject : MonoBehaviour
         // 选中当前物体
         Select();
         currentSelected = this;
+
+        // 通知设备列表面板
+        EquipmentListPanel listPanel = FindObjectOfType<EquipmentListPanel>();
+        if (listPanel != null)
+        {
+            listPanel.OnEquipmentSelectedInScene(this);
+        }
 
         // 显示信息面板
         InfoPanel infoPanelManager = FindObjectOfType<InfoPanel>();
