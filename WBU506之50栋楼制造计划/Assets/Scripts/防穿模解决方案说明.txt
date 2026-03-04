@@ -1,0 +1,189 @@
+# 防穿模解决方案说明
+
+## 问题描述
+当镜头距离目标建筑物太近时，镜头会飞进建筑物内部，造成穿模现象。
+
+## 解决方案
+
+### 智能距离检测
+系统会自动检测镜头到目标建筑物的距离，并根据距离采取不同策略：
+
+1. **距离太近**（< 最小安全距离）
+   - 根据设置的行为模式处理
+   - 避免穿模
+
+2. **距离适中**（< 目标距离 × 1.5）
+   - 保持当前位置
+   - 只旋转朝向目标
+
+3. **距离较远**（> 目标距离 × 1.5）
+   - 正常向目标靠近
+   - 停在安全距离外
+
+## 配置参数
+
+在SceneTransitionManager的Inspector中：
+
+### Camera Distance Offset（目标距离偏移）
+- 默认值：3米
+- 说明：镜头停在建筑物前方的距离
+- 建议范围：2-8米
+
+### Min Safe Distance（最小安全距离）
+- 默认值：2米
+- 说明：防止穿模的最小距离
+- 建议范围：1-5米
+- 应该小于或等于Camera Distance Offset
+
+### Near Behavior（距离太近时的行为）
+三种模式可选：
+
+#### 1. Move Back（向后退）- 推荐
+- 镜头会向后退到安全距离
+- 适合大多数情况
+- 效果：镜头后退 → 旋转朝向目标 → 淡出
+
+#### 2. Stay In Place（保持原位）
+- 镜头保持当前位置不动
+- 只旋转朝向目标
+- 适合已经在合适位置的情况
+- 效果：镜头不动 → 旋转朝向目标 → 淡出
+
+#### 3. Only Rotate（只旋转）
+- 镜头完全不移动
+- 只旋转朝向目标
+- 适合特殊场景
+- 效果：只旋转 → 淡出
+
+## 使用建议
+
+### 推荐设置（通用）
+- Camera Distance Offset: 3米
+- Min Safe Distance: 2米
+- Near Behavior: Move Back
+
+### 大型建筑
+- Camera Distance Offset: 5-8米
+- Min Safe Distance: 3-5米
+- Near Behavior: Move Back
+
+### 小型建筑
+- Camera Distance Offset: 2-3米
+- Min Safe Distance: 1-2米
+- Near Behavior: Move Back
+
+### 室内场景
+- Camera Distance Offset: 2米
+- Min Safe Distance: 1.5米
+- Near Behavior: Stay In Place
+
+## 工作原理
+
+### 距离计算
+```
+当前距离 = Vector3.Distance(镜头位置, 建筑物位置)
+```
+
+### 决策逻辑
+```
+if (当前距离 <= 最小安全距离)
+{
+    // 太近了，根据Near Behavior处理
+    if (Move Back) 向后退
+    if (Stay In Place) 保持原位
+    if (Only Rotate) 只旋转
+}
+else if (当前距离 <= 目标距离 × 1.5)
+{
+    // 距离适中，保持原位
+}
+else
+{
+    // 距离较远，正常靠近
+}
+```
+
+### 后退计算
+```
+后退距离 = 最小安全距离 - 当前距离 + 1米
+后退方向 = 镜头当前朝向的反方向
+```
+
+## 调试信息
+
+运行时会在Console显示：
+- "镜头距离目标太近(X米)，向后退到安全距离"
+- "镜头距离目标适中(X米)，保持当前位置"
+- "镜头距离目标较远(X米)，向目标靠近"
+
+通过这些信息可以了解系统的决策过程。
+
+## 常见问题
+
+### 问题1：还是会穿模
+- 增加Min Safe Distance的值
+- 检查建筑物的Collider大小是否正确
+- 尝试使用Move Back模式
+
+### 问题2：镜头后退太多
+- 减小Min Safe Distance的值
+- 调整Camera Distance Offset
+- 尝试使用Stay In Place模式
+
+### 问题3：镜头不移动
+- 检查当前距离是否小于Min Safe Distance
+- 如果使用Only Rotate模式，镜头不会移动
+- 切换到Move Back模式
+
+### 问题4：效果不自然
+- 调整Camera Move Time（移动时间）
+- 确保Min Safe Distance < Camera Distance Offset
+- 尝试不同的Near Behavior模式
+
+## 测试方法
+
+### 测试距离太近的情况
+1. 在Scene视图中将镜头移到建筑物旁边
+2. 运行游戏
+3. 点击建筑物
+4. 观察镜头是否后退
+
+### 测试距离适中的情况
+1. 将镜头放在建筑物前方3-5米
+2. 运行游戏
+3. 点击建筑物
+4. 观察镜头是否保持原位
+
+### 测试距离较远的情况
+1. 将镜头放在建筑物远处（10米以上）
+2. 运行游戏
+3. 点击建筑物
+4. 观察镜头是否向建筑物靠近
+
+## 高级技巧
+
+### 为不同建筑设置不同距离
+可以在ClickableBuildingGroup中添加自定义距离参数，然后传递给SceneTransitionManager。
+
+### 使用射线检测
+可以添加射线检测来检查镜头路径上是否有障碍物，进一步优化路径。
+
+### 动态调整距离
+根据建筑物的大小动态调整Camera Distance Offset：
+```csharp
+float buildingSize = renderer.bounds.size.magnitude;
+float dynamicDistance = buildingSize * 0.5f;
+```
+
+## 效果对比
+
+### 修复前
+- 镜头直接向建筑物移动
+- 可能穿进建筑物内部
+- 看到建筑物内部结构或黑屏
+
+### 修复后
+- 智能检测距离
+- 自动避免穿模
+- 始终保持在建筑物外部
+- 提供流畅的转场体验
