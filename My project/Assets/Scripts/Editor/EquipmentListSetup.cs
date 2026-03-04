@@ -76,6 +76,10 @@ public class EquipmentListSetup : EditorWindow
         ScrollRect scroll = scrollView.AddComponent<ScrollRect>();
         scroll.horizontal = false;
         scroll.vertical = true;
+        scroll.scrollSensitivity = 20f;  // 设置滚轮灵敏度(默认值通常较小)
+        scroll.movementType = ScrollRect.MovementType.Clamped;  // 限制滚动范围
+        scroll.inertia = true;  // 启用惯性滚动
+        scroll.decelerationRate = 0.135f;  // 惯性减速率
 
         // 创建 Viewport
         GameObject viewport = new GameObject("Viewport");
@@ -87,6 +91,8 @@ public class EquipmentListSetup : EditorWindow
         viewportRect.sizeDelta = Vector2.zero;
         
         viewport.AddComponent<Image>().color = new Color(0, 0, 0, 0.1f);
+        Image viewportImage = viewport.GetComponent<Image>();
+        viewportImage.raycastTarget = false;  // Viewport不需要接收点击,禁用以允许滚轮穿透
         viewport.AddComponent<Mask>().showMaskGraphic = false;
 
         scroll.viewport = viewportRect;
@@ -166,6 +172,7 @@ public class EquipmentListSetup : EditorWindow
         
         Image headerBg = header.AddComponent<Image>();
         headerBg.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+        headerBg.raycastTarget = false;  // 分类标题背景不需要接收点击,禁用以允许滚轮穿透
         
         GameObject headerText = new GameObject("Text");
         headerText.transform.SetParent(header.transform, false);

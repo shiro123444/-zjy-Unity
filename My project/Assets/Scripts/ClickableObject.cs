@@ -112,8 +112,9 @@ public class ClickableObject : MonoBehaviour
             Debug.Log($"找到 InfoPanel，显示信息");
             infoPanelManager.ShowInfo(objectName, detailInfo);
             
-            // 监听面板关闭事件
-            infoPanelManager.onPanelClosed = OnPanelClosed;
+            // 监听面板关闭事件（使用 += 添加订阅，而不是 = 覆盖）
+            infoPanelManager.onPanelClosed -= OnPanelClosed;  // 先取消订阅，避免重复
+            infoPanelManager.onPanelClosed += OnPanelClosed;  // 添加订阅
         }
         else
         {
