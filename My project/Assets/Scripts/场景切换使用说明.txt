@@ -1,0 +1,97 @@
+# 场景切换系统使用说明
+
+## 功能介绍
+实现点击物体后，屏幕渐渐变黑，切换到另一个场景，然后从黑色渐渐变亮。
+
+## 使用步骤
+
+### 1. 设置场景过渡管理器
+- 在场景中创建一个空物体（GameObject → Create Empty）
+- 命名为 "SceneTransitionManager"
+- 添加 SceneTransitionManager 脚本
+- 配置参数：
+  * Fade Duration: 淡入淡出持续时间（默认1秒）
+  * Fade Color: 淡出颜色（默认黑色）
+
+### 2. 设置可点击物体
+- 选择场景中要点击的物体
+- 确保物体有 Collider 组件（Box Collider、Sphere Collider等）
+- 添加 ClickableObject 脚本
+- 配置参数：
+  * Target Scene Name: 目标场景名称（如 "Scene2"）
+  * Target Scene Index: 或使用场景索引（-1表示使用名称）
+  * Enable Highlight: 是否启用鼠标悬停高亮
+  * Hover Color: 悬停时的颜色
+
+### 3. 添加场景到Build Settings
+重要！必须将目标场景添加到构建设置中：
+- File → Build Settings
+- 点击 "Add Open Scenes" 或拖拽场景文件到列表
+- 确保所有需要切换的场景都在列表中
+
+### 4. 测试
+- 运行游戏
+- 鼠标悬停在可点击物体上会看到高亮效果
+- 点击物体会触发淡出效果（变黑）→ 切换场景 → 淡入效果（变亮）
+
+## 效果说明
+
+过渡流程：
+1. 点击物体
+2. 屏幕渐渐变黑（Fade Out）
+3. 加载新场景
+4. 屏幕从黑色渐渐变亮（Fade In）
+
+## 高级用法
+
+### 通过代码触发场景切换
+```csharp
+// 使用场景名称
+SceneTransitionManager.Instance.TransitionToScene("MyScene");
+
+// 使用场景索引
+SceneTransitionManager.Instance.TransitionToScene(1);
+
+// 单独使用淡出效果
+StartCoroutine(SceneTransitionManager.Instance.FadeOut());
+
+// 单独使用淡入效果
+StartCoroutine(SceneTransitionManager.Instance.FadeIn());
+```
+
+### 自定义淡入淡出效果
+在 SceneTransitionManager 的 Inspector 中调整：
+- Fade Duration: 控制淡入淡出速度（数值越大越慢）
+- Fade Color: 改变淡出颜色（默认黑色，也可以用白色等）
+
+### 多个可点击物体
+可以在场景中添加多个 ClickableObject，每个指向不同的场景。
+
+## 注意事项
+
+1. 确保场景中有 Main Camera
+2. 可点击物体必须有 Collider 组件
+3. 目标场景必须添加到 Build Settings
+4. SceneTransitionManager 会自动在场景切换时保持存在（DontDestroyOnLoad）
+5. 淡入淡出画布会自动创建，无需手动添加UI
+
+## 故障排除
+
+问题：点击没有反应
+- 检查物体是否有 Collider
+- 检查 Console 是否有错误信息
+- 确保场景中有 SceneTransitionManager
+
+问题：场景切换但没有淡入淡出效果
+- 检查 Fade Duration 是否设置为0
+- 确保 SceneTransitionManager 正确初始化
+- 查看 Console 是否有警告
+
+问题：场景切换失败
+- 确保目标场景已添加到 Build Settings
+- 检查场景名称拼写是否正确
+- 确认场景索引是否正确（从0开始）
+
+问题：淡入淡出画布遮挡了UI
+- SceneTransitionManager 的画布层级最高（sortingOrder = 9999）
+- 这是正常的，确保过渡效果在最上层显示

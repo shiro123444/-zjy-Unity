@@ -1,0 +1,168 @@
+# Scene视图风格镜头控制说明
+
+## 功能介绍
+模拟Unity Scene视图的镜头控制方式，提供完整的3D场景浏览体验。
+
+## 操作方式
+
+### 旋转视角（右键拖动）
+- 按住鼠标右键并拖动
+- 左右拖动：水平旋转
+- 上下拖动：垂直旋转
+- 垂直旋转有角度限制，防止翻转
+
+### 平移镜头（中键拖动）
+- 按住鼠标中键并拖动
+- 镜头会沿着屏幕方向移动
+- 适合调整观察位置
+
+### 缩放/前后移动（滚轮）
+- 向前滚动：镜头向前移动（靠近场景）
+- 向后滚动：镜头向后移动（远离场景）
+- 移动速度会根据滚动速度自动调整
+
+## 使用步骤
+
+### 1. 替换旧的镜头控制器
+- 选择Main Camera
+- 移除旧的CameraController脚本
+- 添加SceneViewCameraController脚本
+
+### 2. 配置参数（可选）
+
+**旋转设置**
+- Rotation Speed: 旋转速度（默认3）
+- Min Vertical Angle: 最小垂直角度（默认-89°）
+- Max Vertical Angle: 最大垂直角度（默认89°）
+
+**平移设置**
+- Pan Speed: 平移速度（默认0.5）
+
+**缩放设置**
+- Zoom Speed: 缩放速度（默认10）
+- Min Move Speed: 最小移动速度（默认1）
+- Max Move Speed: 最大移动速度（默认50）
+
+**平滑设置**
+- Enable Smoothing: 启用平滑移动（建议勾选）
+- Smooth Factor: 平滑系数（默认5，越大越平滑）
+
+### 3. 测试
+- 运行游戏
+- 右键拖动：旋转视角
+- 中键拖动：平移镜头
+- 滚轮：前后移动
+
+## 对比：旧版 vs 新版
+
+### CameraController（旧版）
+- 只能围绕固定点旋转
+- 不能自由移动镜头位置
+- 适合观察单个物体
+
+### SceneViewCameraController（新版）
+- 可以自由旋转视角
+- 可以平移到任意位置
+- 可以前后移动
+- 完全模拟Unity Scene视图
+- 适合浏览整个场景
+
+## 高级功能
+
+### 通过代码控制
+
+```csharp
+// 获取镜头控制器
+SceneViewCameraController cameraController = Camera.main.GetComponent<SceneViewCameraController>();
+
+// 重置镜头到指定位置和角度
+cameraController.ResetCamera(new Vector3(0, 10, -10), new Vector3(30, 0, 0));
+
+// 聚焦到指定物体
+Vector3 targetPosition = someGameObject.transform.position;
+cameraController.FocusOn(targetPosition, 15f); // 距离15单位
+```
+
+### 调整控制灵敏度
+
+如果觉得控制太快或太慢：
+- Rotation Speed: 调整旋转速度
+- Pan Speed: 调整平移速度
+- Zoom Speed: 调整缩放速度
+
+### 禁用平滑效果
+
+如果想要更直接的控制：
+- 取消勾选 Enable Smoothing
+- 镜头会立即响应操作，没有延迟
+
+## 使用技巧
+
+### 快速浏览场景
+1. 用中键拖动到感兴趣的区域
+2. 用滚轮调整距离
+3. 用右键调整观察角度
+
+### 精确定位
+1. 先用滚轮拉远视角
+2. 用中键平移到目标位置
+3. 用滚轮拉近
+4. 用右键微调角度
+
+### 避免迷失方向
+- 垂直旋转有限制，不会完全翻转
+- 如果迷失了，可以通过代码重置镜头
+- 建议在UI中添加"重置视角"按钮
+
+## 常见问题
+
+### 问题1：镜头移动太快/太慢
+- 调整对应的速度参数
+- Rotation Speed: 旋转
+- Pan Speed: 平移
+- Zoom Speed: 缩放
+
+### 问题2：镜头移动不平滑
+- 确保Enable Smoothing被勾选
+- 增加Smooth Factor的值（5-10）
+
+### 问题3：镜头移动太平滑（有延迟感）
+- 减小Smooth Factor的值（1-3）
+- 或取消勾选Enable Smoothing
+
+### 问题4：垂直旋转受限
+- 这是正常的，防止镜头翻转
+- 可以调整Min/Max Vertical Angle
+- 建议保持在-89到89度之间
+
+### 问题5：中键拖动没反应
+- 确保鼠标有中键（滚轮按下）
+- 检查是否有其他脚本占用了中键
+- 查看Console是否有错误
+
+## 性能说明
+
+- 脚本非常轻量，对性能影响极小
+- 平滑移动使用Lerp插值，性能开销可忽略
+- 适合在任何规模的场景中使用
+
+## 推荐设置
+
+### 建筑浏览场景
+- Rotation Speed: 3-5
+- Pan Speed: 0.5-1
+- Zoom Speed: 10-15
+- Enable Smoothing: ✓
+
+### 快速操作场景
+- Rotation Speed: 5-8
+- Pan Speed: 1-2
+- Zoom Speed: 15-20
+- Enable Smoothing: ✗
+
+### 精确操作场景
+- Rotation Speed: 1-2
+- Pan Speed: 0.3-0.5
+- Zoom Speed: 5-8
+- Enable Smoothing: ✓
+- Smooth Factor: 8-10
