@@ -31,6 +31,9 @@ public class SceneTransitionManager : MonoBehaviour
     
     [Tooltip("镜头移动到目标的距离偏移")]
     public float cameraDistanceOffset = 3f;
+    
+    [Tooltip("是否在移动时旋转镜头看向目标")]
+    public bool rotateWhileMoving = false;
 
     private Canvas fadeCanvas;
     private Image fadeImage;
@@ -267,7 +270,7 @@ public class SceneTransitionManager : MonoBehaviour
             ? Quaternion.LookRotation(lookDirection) 
             : startRotation;
 
-        Debug.Log($"开始缓慢移动镜头，速度: {cameraMoveSpeed}");
+        Debug.Log($"开始缓慢移动镜头，速度: {cameraMoveSpeed}, 旋转: {rotateWhileMoving}");
 
         // 持续移动直到到达目标或场景切换
         while (mainCamera != null && Vector3.Distance(mainCamera.transform.position, finalPosition) > 0.1f)
@@ -279,12 +282,17 @@ public class SceneTransitionManager : MonoBehaviour
                 cameraMoveSpeed * Time.deltaTime
             );
             
-            // 平滑旋转
-            mainCamera.transform.rotation = Quaternion.RotateTowards(
-                mainCamera.transform.rotation,
-                finalRotation,
-                cameraMoveSpeed * 30f * Time.deltaTime
-            );
+            // 根据设置决定是否旋转
+            if (rotateWhileMoving)
+            {
+                // 平滑旋转看向目标
+                mainCamera.transform.rotation = Quaternion.RotateTowards(
+                    mainCamera.transform.rotation,
+                    finalRotation,
+                    cameraMoveSpeed * 30f * Time.deltaTime
+                );
+            }
+            // 如果不旋转，保持原始朝向
 
             yield return null;
         }
